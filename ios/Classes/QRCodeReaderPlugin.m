@@ -14,7 +14,6 @@ static FlutterMethodChannel *channel;
 -(void)stopReading;
 @property (nonatomic, retain) UIViewController *viewController;
 @property (nonatomic, retain) UIViewController *qrcodeViewController;
-@property (nonatomic) BOOL isFrontCamera;
 @end
 
 @implementation QRCodeReaderPlugin {
@@ -29,8 +28,8 @@ float portraitheight;
 
 
 + (void)registerWithRegistrar:(NSObject<FlutterPluginRegistrar>*)registrar {
-    FlutterMethodChannel* channel = [FlutterMethodChannel
-                                     methodChannelWithName:CHANNEL_NAME
+    FlutterMethodChannel* channel = [FlutterMethodChannel 
+                                     methodChannelWithName:CHANNEL_NAME 
                                      binaryMessenger:[registrar messenger]];
     UIViewController *viewController =
     [UIApplication sharedApplication].delegate.window.rootViewController;
@@ -40,9 +39,6 @@ float portraitheight;
 
 
 - (void)handleMethodCall:(FlutterMethodCall*)call result:(FlutterResult)result {
-    NSDictionary *args = (NSDictionary *)call.arguments;
-    self.isFrontCamera = [[args objectForKey: @"frontCamera"] boolValue];
-
     if ([@"getPlatformVersion" isEqualToString:call.method]) {
         result([@"iOS " stringByAppendingString:[[UIDevice currentDevice] systemVersion]]);
     } else if ([@"readQRCode" isEqualToString:call.method]) {
@@ -72,15 +68,10 @@ float portraitheight;
 
 - (void)showQRCodeView:(FlutterMethodCall*)call {
     _qrcodeViewController = [[UIViewController alloc] init];
+    
+    _qrcodeViewController.modalPresentationStyle = UIModalPresentationFullScreen;
+    
     [_viewController presentViewController:_qrcodeViewController animated:NO completion:nil];
-
-    if (@available(iOS 13.0, *)) {
-        [_qrcodeViewController setModalInPresentation:(true) ];
-        // [_qrcodeViewController setModalPresentationStyle:(UIModalPresentationFullScreen) ];
-    } else {
-        // Fallback on earlier versions
-    }
-
     [self loadViewQRCode];
     [self viewQRCodeDidLoad];
     [self startReading];
@@ -97,10 +88,10 @@ float portraitheight;
 -(void)loadViewQRCode {
     portraitheight = height = [UIScreen mainScreen].applicationFrame.size.height;
     landscapeheight = width = [UIScreen mainScreen].applicationFrame.size.width;
-    if(UIDeviceOrientationIsLandscape([[UIDevice currentDevice] orientation])){
-        landscapeheight = height;
-        portraitheight = width;
-    }
+//    if(UIDeviceOrientationIsLandscape([[UIDevice currentDevice] orientation])){
+//        landscapeheight = height;
+//        portraitheight = width;
+//    }
     _qrcodeview= [[UIView alloc] initWithFrame:CGRectMake(0, 0, width, height) ];
     _qrcodeview.opaque = NO;
     _qrcodeview.backgroundColor = [UIColor whiteColor];
@@ -109,39 +100,51 @@ float portraitheight;
 
 
 - (void)viewQRCodeDidLoad {
+    
+    UIImage * image = [self njq_sk_imageNamed:@"guanbi"];
+    
     _viewPreview = [[UIView alloc] initWithFrame:CGRectMake(0, 0, width, height+height/10) ];
     _viewPreview.backgroundColor = [UIColor whiteColor];
     [_qrcodeViewController.view addSubview:_viewPreview];
-    _buttonCancel = [UIButton buttonWithType:UIButtonTypeRoundedRect];
-
-    if (@available(iOS 13.0, *)) {
-        _buttonCancel.frame = CGRectMake(width/2-width/8, (height-height/20)-30, width/4, height/20);
-    } else {
-        // Fallback on earlier versions
-        _buttonCancel.frame = CGRectMake(width/2-width/8, height-height/20, width/4, height/20);
-    }
-
-    [_buttonCancel setTitle:@"CANCEL"forState:UIControlStateNormal];
+    _buttonCancel = [UIButton buttonWithType:UIButtonTypeCustom];
+    _buttonCancel.frame = CGRectMake(30, 40,image.size.width, image.size.height);
+    
+    [_buttonCancel setImage:image
+                   forState:UIControlStateNormal];
     [_buttonCancel addTarget:self action:@selector(stopReading) forControlEvents:UIControlEventTouchUpInside];
     [_qrcodeViewController.view addSubview:_buttonCancel];
+    
+    
+    UIImageView * bgImage = [[UIImageView alloc]initWithImage:[self njq_sk_imageNamed:@"scanning_bg"]];
+    bgImage.center = _qrcodeViewController.view.center;
+    
+    [_qrcodeViewController.view addSubview:bgImage];
+    
+    
     _captureSession = nil;
     _isReading = NO;
 
 }
 
+- (UIImage *)njq_sk_imageNamed:(NSString *)imageName {
+    
+    NSString *bundlePath = [[NSBundle bundleForClass:NSClassFromString(@"qrcode_reader")].resourcePath
+                            stringByAppendingPathComponent:@"/qrcode_reader.bundle"];
+    NSBundle *resource_bundle = [NSBundle bundleWithPath:bundlePath];
+    UIImage *image = [UIImage imageNamed:imageName
+                                inBundle:resource_bundle
+           compatibleWithTraitCollection:nil];
+    
+    return image;
+    
+}
+
+
 - (BOOL)startReading {
     if (_isReading) return NO;
     _isReading = YES;
     NSError *error;
-    AVCaptureDevice *captureDevice;
-    if ([self isFrontCamera]) {
-        captureDevice = [AVCaptureDevice defaultDeviceWithDeviceType: AVCaptureDeviceTypeBuiltInWideAngleCamera
-                                                                                mediaType: AVMediaTypeVideo
-                                                                                position: AVCaptureDevicePositionFront];
-    } else {
-        captureDevice = [AVCaptureDevice defaultDeviceWithMediaType:AVMediaTypeVideo];
-    }
-
+    AVCaptureDevice *captureDevice = [AVCaptureDevice defaultDeviceWithMediaType:AVMediaTypeVideo];
     AVCaptureDeviceInput *input = [AVCaptureDeviceInput deviceInputWithDevice:captureDevice error:&error];
     if (!input) {
         NSLog(@"%@", [error localizedDescription]);
@@ -177,26 +180,20 @@ float portraitheight;
 
 
 - (void) rotate:(NSNotification *) notification{
-    UIInterfaceOrientation orientation = [UIApplication sharedApplication].statusBarOrientation;
-    if (orientation == 1) {
-        height = portraitheight;
-        width = landscapeheight;
-
-        if (@available(iOS 13.0, *)) {
-            _buttonCancel.frame = CGRectMake(width/2-width/8, (height-height/20)-30, width/4, height/20);
-        } else {
-            // Fallback on earlier versions
-            _buttonCancel.frame = CGRectMake(width/2-width/8, height-height/20, width/4, height/20);
-        }
-    } else {
-        height = landscapeheight;
-        width = portraitheight;
-        _buttonCancel.frame = CGRectMake(width/2-width/8, height-height/10, width/4, height/20);
-    }
-    _qrcodeview.frame = CGRectMake(0, 0, width, height) ;
-    _viewPreview = [[UIView alloc] initWithFrame:CGRectMake(0, 0, width, height+height/10) ];
-    [_videoPreviewLayer setFrame:_viewPreview.layer.bounds];
-    [_qrcodeViewController viewWillLayoutSubviews];
+//    if([[UIDevice currentDevice] orientation] == 1){
+//    height = portraitheight;
+//    width = landscapeheight;
+//    _buttonCancel.frame = CGRectMake(width/2-width/8, height-height/20, width/4, height/20);
+//    }
+//    else {
+//    height = landscapeheight;
+//    width = portraitheight;
+//    _buttonCancel.frame = CGRectMake(width/2-width/8, height-height/10, width/4, height/20);
+//    }
+//    _qrcodeview.frame = CGRectMake(0, 0, width, height) ;
+//    _viewPreview = [[UIView alloc] initWithFrame:CGRectMake(0, 0, width, height+height/10) ];
+//    [_videoPreviewLayer setFrame:_viewPreview.layer.bounds];
+//    [_qrcodeViewController viewWillLayoutSubviews];
 }
 
 

@@ -30,7 +30,6 @@ class QRCodeReader {
   bool _torchEnabled = false;
   bool _handlePermissions = true;
   bool _executeAfterPermissionGranted = true;
-  bool _frontCamera = false;
 
   QRCodeReader setAutoFocusIntervalInMs(int autoFocusIntervalInMs) {
     _autoFocusIntervalInMs = autoFocusIntervalInMs;
@@ -57,11 +56,6 @@ class QRCodeReader {
     return this;
   }
 
-  QRCodeReader setFrontCamera(bool setFrontCamera) {
-    _frontCamera = setFrontCamera;
-    return this;
-  }
-
   Future<String> scan() async {
     Map params = <String, dynamic>{
       "autoFocusIntervalInMs": _autoFocusIntervalInMs,
@@ -69,7 +63,6 @@ class QRCodeReader {
       "torchEnabled": _torchEnabled,
       "handlePermissions": _handlePermissions,
       "executeAfterPermissionGranted": _executeAfterPermissionGranted,
-      "frontCamera": _frontCamera,
     };
     return await _channel.invokeMethod('readQRCode', params);
   }

@@ -24,6 +24,8 @@ import android.app.Activity;
 import android.content.Intent;
 import android.graphics.PointF;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.ImageView;
 
 import com.dlazaro66.qrcodereaderview.QRCodeReaderView;
 
@@ -37,7 +39,6 @@ public class QRScanActivity extends Activity implements QRCodeReaderView.OnQRCod
     public static String EXTRA_FOCUS_INTERVAL = "extra_focus_interval";
     public static String EXTRA_FORCE_FOCUS = "extra_force_focus";
     public static String EXTRA_TORCH_ENABLED = "extra_torch_enabled";
-    public static String EXTRA_FRONT_CAMERA = "extra_front_camera";
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -51,9 +52,16 @@ public class QRScanActivity extends Activity implements QRCodeReaderView.OnQRCod
         }
         view.setAutofocusInterval(intent.getIntExtra(EXTRA_FOCUS_INTERVAL, 2000));
         view.setTorchEnabled(intent.getBooleanExtra(EXTRA_TORCH_ENABLED, false));
-        if (intent.getBooleanExtra(EXTRA_FRONT_CAMERA, false)) {
-            view.setFrontCamera();
-        }
+
+        ImageView imageView = (ImageView) findViewById(R.id.close);
+
+        imageView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        });
+
     }
 
     @Override

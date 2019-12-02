@@ -13,6 +13,9 @@ A new flutter plugin project.
   s.author           = { 'Netsense' => 'johan@netsense.nl' }
   s.source           = { :path => '.' }
   s.source_files = 'Classes/**/*'
+  s.resource_bundles = {
+      'qrcode_reader' => ['Assets/*.xcassets']
+  }
   s.public_header_files = 'Classes/**/*.h'
   s.dependency 'Flutter'
   

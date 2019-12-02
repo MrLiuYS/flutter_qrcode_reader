@@ -44,25 +44,25 @@ public class QRCodeReaderPlugin implements MethodCallHandler, ActivityResultList
 
     private static final int REQUEST_CODE_SCAN_ACTIVITY = 2777;
     private static final int REQUEST_CODE_CAMERA_PERMISSION = 3777;
-    //    private static QRCodeReaderPlugin instance;
+    private static QRCodeReaderPlugin instance;
 
-    private FlutterActivity activity;
+    private Activity activity;
     private Result pendingResult;
     private Map<String, Object> arguments;
     private boolean executeAfterPermissionGranted;
 
-    public QRCodeReaderPlugin(FlutterActivity activity) {
+    public QRCodeReaderPlugin(Activity activity) {
         this.activity = activity;
     }
 
     public static void registerWith(PluginRegistry.Registrar registrar) {
-	//        if (instance == null) {
+        if (instance == null) {
             final MethodChannel channel = new MethodChannel(registrar.messenger(), CHANNEL);
-            final QRCodeReaderPlugin instance = new QRCodeReaderPlugin((FlutterActivity) registrar.activity());
+            instance = new QRCodeReaderPlugin(registrar.activity());
             registrar.addActivityResultListener(instance);
             registrar.addRequestPermissionsResultListener(instance);
             channel.setMethodCallHandler(instance);
-	    // }
+        }
     }
 
 
@@ -133,7 +133,6 @@ public class QRCodeReaderPlugin implements MethodCallHandler, ActivityResultList
         intent.putExtra(QRScanActivity.EXTRA_FOCUS_INTERVAL, (int) arguments.get("autoFocusIntervalInMs"));
         intent.putExtra(QRScanActivity.EXTRA_FORCE_FOCUS, (boolean) arguments.get("forceAutoFocus"));
         intent.putExtra(QRScanActivity.EXTRA_TORCH_ENABLED, (boolean) arguments.get("torchEnabled"));
-        intent.putExtra(QRScanActivity.EXTRA_FRONT_CAMERA, (boolean) arguments.get("frontCamera"));
         activity.startActivityForResult(intent, REQUEST_CODE_SCAN_ACTIVITY);
     }
 
