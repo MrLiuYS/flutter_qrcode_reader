@@ -57,19 +57,21 @@ public class QRCodeReaderPlugin implements MethodCallHandler, ActivityResultList
 
     public static void registerWith(PluginRegistry.Registrar registrar) {
         if (instance == null) {
-            final MethodChannel channel = new MethodChannel(registrar.messenger(), CHANNEL);
             instance = new QRCodeReaderPlugin(registrar.activity());
-            registrar.addActivityResultListener(instance);
-            registrar.addRequestPermissionsResultListener(instance);
-            channel.setMethodCallHandler(instance);
         }
+        final MethodChannel channel = new MethodChannel(registrar.messenger(), CHANNEL);
+        registrar.addActivityResultListener(instance);
+        registrar.addRequestPermissionsResultListener(instance);
+        channel.setMethodCallHandler(instance);
     }
 
 
     @Override
     public void onMethodCall(MethodCall call, Result result) {
         if (pendingResult != null) {
-            result.error("ALREADY_ACTIVE", "QR Code reader is already active", null);
+            //result.error("ALREADY_ACTIVE", "QR Code reader is already active", null);
+            pendingResult.success(null);
+            pendingResult = null;
             return;
         }
         pendingResult = result;
