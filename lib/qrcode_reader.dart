@@ -56,13 +56,14 @@ class QRCodeReader {
     return this;
   }
 
-  Future<String> scan() async {
+  Future<String> scan({String title}) async {
     Map params = <String, dynamic>{
       "autoFocusIntervalInMs": _autoFocusIntervalInMs,
       "forceAutoFocus": _forceAutoFocus,
       "torchEnabled": _torchEnabled,
       "handlePermissions": _handlePermissions,
       "executeAfterPermissionGranted": _executeAfterPermissionGranted,
+      "title":title ?? ""
     };
     return await _channel.invokeMethod('readQRCode', params);
   }
