@@ -73,7 +73,7 @@ float portraitheight;
     
     [_viewController presentViewController:_qrcodeViewController animated:NO completion:nil];
     [self loadViewQRCode];
-    [self viewQRCodeDidLoad];
+    [self viewQRCodeDidLoad:call];
     [self startReading];
 }
 
@@ -99,7 +99,7 @@ float portraitheight;
 }
 
 
-- (void)viewQRCodeDidLoad {
+- (void)viewQRCodeDidLoad:(FlutterMethodCall*)call {
     
     UIImage * image = [self njq_sk_imageNamed:@"guanbi"];
     
@@ -119,6 +119,19 @@ float portraitheight;
     bgImage.center = _qrcodeViewController.view.center;
     
     [_qrcodeViewController.view addSubview:bgImage];
+    
+    
+    if (call.arguments[@"title"]) {
+        UILabel * label = [[UILabel alloc]init];
+        label.textAlignment = NSTextAlignmentCenter;
+        label.textColor = UIColor.whiteColor;
+        label.font = [UIFont systemFontOfSize:14];
+        label.text = call.arguments[@"title"];
+        
+        label.frame = CGRectMake(0, bgImage.frame.origin.y - 44, width, 30);
+        
+        [_qrcodeViewController.view addSubview:label];
+    }
     
     
     _captureSession = nil;
