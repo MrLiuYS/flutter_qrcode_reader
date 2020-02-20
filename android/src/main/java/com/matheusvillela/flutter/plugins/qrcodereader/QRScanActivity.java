@@ -24,8 +24,10 @@ import android.app.Activity;
 import android.content.Intent;
 import android.graphics.PointF;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.dlazaro66.qrcodereaderview.QRCodeReaderView;
 
@@ -33,17 +35,20 @@ public class QRScanActivity extends Activity implements QRCodeReaderView.OnQRCod
 
     private boolean qrRead;
     private QRCodeReaderView view;
+    private TextView titleView;
 
     public static String EXTRA_RESULT = "extra_result";
 
     public static String EXTRA_FOCUS_INTERVAL = "extra_focus_interval";
     public static String EXTRA_FORCE_FOCUS = "extra_force_focus";
     public static String EXTRA_TORCH_ENABLED = "extra_torch_enabled";
+    public static String EXTRA_TITLE = "title";
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_qr_read);
         view = (QRCodeReaderView) findViewById(R.id.activity_qr_read_reader);
+        titleView = (TextView) findViewById(R.id.title);
         Intent intent = getIntent();
         view.setOnQRCodeReadListener(this);
         view.setQRDecodingEnabled(true);
@@ -52,6 +57,11 @@ public class QRScanActivity extends Activity implements QRCodeReaderView.OnQRCod
         }
         view.setAutofocusInterval(intent.getIntExtra(EXTRA_FOCUS_INTERVAL, 2000));
         view.setTorchEnabled(intent.getBooleanExtra(EXTRA_TORCH_ENABLED, false));
+        String titleText = intent.getStringExtra(EXTRA_TITLE);
+        if(!TextUtils.isEmpty(titleText)){
+            titleView.setText(titleText);
+        }
+
 
         ImageView imageView = (ImageView) findViewById(R.id.close);
 

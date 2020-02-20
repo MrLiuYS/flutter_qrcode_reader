@@ -135,6 +135,7 @@ public class QRCodeReaderPlugin implements MethodCallHandler, ActivityResultList
         intent.putExtra(QRScanActivity.EXTRA_FOCUS_INTERVAL, (int) arguments.get("autoFocusIntervalInMs"));
         intent.putExtra(QRScanActivity.EXTRA_FORCE_FOCUS, (boolean) arguments.get("forceAutoFocus"));
         intent.putExtra(QRScanActivity.EXTRA_TORCH_ENABLED, (boolean) arguments.get("torchEnabled"));
+        intent.putExtra(QRScanActivity.EXTRA_TITLE, (String) arguments.get("title"));
         activity.startActivityForResult(intent, REQUEST_CODE_SCAN_ACTIVITY);
     }
 
