@@ -44,7 +44,7 @@ public class QRCodeReaderPlugin implements MethodCallHandler, ActivityResultList
 
     private static final int REQUEST_CODE_SCAN_ACTIVITY = 2777;
     private static final int REQUEST_CODE_CAMERA_PERMISSION = 3777;
-    private static QRCodeReaderPlugin instance;
+    // private static QRCodeReaderPlugin instance;
 
     private Activity activity;
     private Result pendingResult;
@@ -56,9 +56,9 @@ public class QRCodeReaderPlugin implements MethodCallHandler, ActivityResultList
     }
 
     public static void registerWith(PluginRegistry.Registrar registrar) {
-        if (instance == null) {
-            instance = new QRCodeReaderPlugin(registrar.activity());
-        }
+        // if (instance == null) {
+        QRCodeReaderPlugin instance = new QRCodeReaderPlugin(registrar.activity());
+        // }
         final MethodChannel channel = new MethodChannel(registrar.messenger(), CHANNEL);
         registrar.addActivityResultListener(instance);
         registrar.addRequestPermissionsResultListener(instance);
